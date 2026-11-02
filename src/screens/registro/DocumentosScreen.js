@@ -1,8 +1,3 @@
-// src/screens/registro/DocumentosScreen.js
-// AI-assisted: see docs/AI_LOG.md #3
-// Registration tab 3: documents and payments + "Enviar registro" button.
-// Bank or card numbers are NEVER asked or stored: the payment gateway handles them.
-
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 

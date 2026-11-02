@@ -1,7 +1,3 @@
-// src/theme/index.js
-// AI-assisted: see docs/AI_LOG.md #2
-// Colors, spacing and sizes in one place.
-
 export const colors = {
   background: '#F5F5F7',
   surface: '#FFFFFF',

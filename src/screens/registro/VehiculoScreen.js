@@ -1,7 +1,3 @@
-// src/screens/registro/VehiculoScreen.js
-// AI-assisted: see docs/AI_LOG.md #3
-// Registration tab 2: vehicle.
-
 import React, { useEffect } from 'react';
 
 import CampoTexto from '../../components/CampoTexto';

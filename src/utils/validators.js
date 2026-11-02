@@ -1,7 +1,3 @@
-// src/utils/validators.js
-// AI-assisted: see docs/AI_LOG.md #3
-// Pure validation functions. Each one returns an error message; '' means valid.
-
 const NAME_RE = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PLATE_RE = /^[A-Z]{3}\d{3}$/; // Colombian car plate: ABC123

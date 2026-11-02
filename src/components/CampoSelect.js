@@ -1,7 +1,3 @@
-// src/components/CampoSelect.js
-// AI-assisted: see docs/AI_LOG.md #3
-// Dropdown list with the error message below.
-
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Picker } from '@react-native-picker/picker';

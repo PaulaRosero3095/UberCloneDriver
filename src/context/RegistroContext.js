@@ -1,10 +1,6 @@
-// src/context/RegistroContext.js
-// AI-assisted: see docs/AI_LOG.md #3
-// Holds the registration form shared by the 3 tabs, its errors and the submit state.
-// Concept: Context + useMemo (derived errors) + useCallback (stable handlers).
-
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
+import { useDriver } from './DriverContext';
 import { registerDriver } from '../services/driverService';
 import {
   INITIAL_VALUES,
@@ -18,6 +14,7 @@ import {
 const RegistroContext = createContext(null);
 
 export function RegistroProvider({ children }) {
+  const { signIn } = useDriver();
   const [values, setValues] = useState(INITIAL_VALUES);
   const [touched, setTouched] = useState({}); // fields the user already visited
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -93,6 +90,7 @@ export function RegistroProvider({ children }) {
     try {
       const id = await registerDriver(values);
       setDriverId(id);
+      await signIn(id); // saves the session so the next launch goes to Main
       setStatus('submitted');
       return true;
     } catch (error) {
@@ -100,7 +98,7 @@ export function RegistroProvider({ children }) {
       setStatus('draft');
       return false;
     }
-  }, [allValid, values]);
+  }, [allValid, values, signIn]);
 
   const value = useMemo(
     () => ({

@@ -1,8 +1,3 @@
-// src/utils/calculateFare.js
-// AI-assisted: see docs/AI_LOG.md #1
-// Pure function: the same one is used to ESTIMATE the fare for the passenger
-// and to CLOSE the trip for the driver.
-
 import { PRICING } from '../config/pricing';
 
 export function calculateFare({

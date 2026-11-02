@@ -1,8 +1,3 @@
-// src/config/pricing.js
-// AI-assisted: see docs/AI_LOG.md #1
-// Single place for every pricing value (didactic values, not real fares).
-// All money is handled in whole Colombian pesos (COP) to avoid decimal errors.
-
 export const PRICING = {
   baseFare: 3500, // COP
   pricePerKm: 1200, // COP

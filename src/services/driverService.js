@@ -1,9 +1,4 @@
-// src/services/driverService.js
-// AI-assisted: see docs/AI_LOG.md #3
-// The ONLY place that talks to Firestore about drivers.
-// Bank or card numbers are never stored: the payment gateway handles them.
-
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
 import { PRICING } from '../config/pricing';
@@ -61,4 +56,26 @@ export async function registerDriver(values) {
 
   const ref = await addDoc(collection(db, 'drivers'), payload);
   return ref.id;
+}
+
+// Real-time listener for one driver. Returns the unsubscribe function.
+export function subscribeToDriver(driverId, onData, onError) {
+  return onSnapshot(
+    doc(db, 'drivers', driverId),
+    (snapshot) => onData(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null),
+    onError
+  );
+}
+
+// Availability switch (the screen only allows it when the driver is approved)
+export async function setDriverAvailability(driverId, isAvailable) {
+  await updateDoc(doc(db, 'drivers', driverId), { isAvailable });
+}
+
+// Last known position, so the backend / passengers can find the driver
+export async function updateDriverLocation(driverId, { latitude, longitude }) {
+  await updateDoc(doc(db, 'drivers', driverId), {
+    location: { latitude, longitude },
+    locationUpdatedAt: serverTimestamp(),
+  });
 }

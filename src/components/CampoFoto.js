@@ -1,7 +1,3 @@
-// src/components/CampoFoto.js
-// AI-assisted: see docs/AI_LOG.md #3
-// Photo field: take a picture with the camera or choose one from the gallery.
-
 import React, { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';

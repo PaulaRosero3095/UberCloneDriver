@@ -1,7 +1,3 @@
-// src/navigation/DrawerNavigator.js
-// AI-assisted: see docs/AI_LOG.md #2
-// DRAWER: profile, history, earnings and settings.
-
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 

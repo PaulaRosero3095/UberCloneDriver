@@ -1,8 +1,3 @@
-// src/navigation/RegistroTabs.js
-// AI-assisted: see docs/AI_LOG.md #3
-// TABS: the 3 steps of the driver registration.
-// A "!" badge appears on a tab that has errors the user can already see.
-
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';

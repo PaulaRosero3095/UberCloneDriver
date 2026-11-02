@@ -1,7 +1,3 @@
-// src/config/firebase.js
-// AI-assisted: see docs/AI_LOG.md #2
-// Firebase setup. Values come from the .env file, never written in the code.
-
 import { initializeApp } from 'firebase/app';
 import { initializeFirestore } from 'firebase/firestore';
 

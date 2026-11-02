@@ -1,10 +1,28 @@
-// src/screens/ConfiguracionScreen.js
-// AI-assisted: see docs/AI_LOG.md #2
-// Placeholder: the real screen is built in a later step.
-
 import React from 'react';
-import ScreenPlaceholder from '../components/ScreenPlaceholder';
+import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
+import Boton from '../components/Boton';
+import { useDriver } from '../context/DriverContext';
+import { colors, spacing } from '../theme';
 
 export default function ConfiguracionScreen() {
-  return <ScreenPlaceholder title="Configuración" subtitle="Idioma y cerrar sesión" />;
+  const navigation = useNavigation();
+  const { signOut } = useDriver();
+
+  const handleSignOut = async () => {
+    await signOut();
+    // Back to the registration screen with a clean stack
+    navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Registro' }] });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Boton title="Cerrar sesión" onPress={handleSignOut} />
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg, justifyContent: 'flex-start' },
+});

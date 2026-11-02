@@ -1,7 +1,3 @@
-// src/components/CampoFecha.js
-// AI-assisted: see docs/AI_LOG.md #3
-// Date selector (opens the native date picker) with the error message below.
-
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -20,10 +16,14 @@ export default function CampoFecha({
 }) {
   const [open, setOpen] = useState(false);
 
-  const handleChange = (event, selected) => {
+  // A date was chosen: close the picker and pass the date up
+  const handleValueChange = (event, selected) => {
     setOpen(false);
-    if (event.type === 'set' && selected) onChange(selected);
+    if (selected) onChange(selected);
   };
+
+  // The user cancelled: just close the picker
+  const handleDismiss = () => setOpen(false);
 
   return (
     <View style={styles.container}>
@@ -41,7 +41,8 @@ export default function CampoFecha({
           value={value || initialDate || new Date()}
           mode="date"
           display="default"
-          onChange={handleChange}
+          onValueChange={handleValueChange}
+          onDismiss={handleDismiss}
           minimumDate={minimumDate}
           maximumDate={maximumDate}
         />
