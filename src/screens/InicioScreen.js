@@ -1,14 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, Switch, Text, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE, UrlTile } from 'react-native-maps';
 
 import { useDriver } from '../context/DriverContext';
 import useDriverLocation from '../hooks/useDriverLocation';
+import Boton from '../components/Boton';
 import { updateDriverLocation } from '../services/driverService';
+import { createTestTrip } from '../services/tripService';
 import { colors, fontSize, radius, spacing } from '../theme';
 
 const FALLBACK_REGION = { latitude: 4.711, longitude: -74.0721, latitudeDelta: 0.05, longitudeDelta: 0.05 };
-const SAVE_EVERY_MS = 15000;
+const SAVE_EVERY_MS = 5000;
 
 // With a Google key the map uses Google Maps; without it, free OpenStreetMap tiles
 const HAS_GOOGLE_KEY = !!process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -16,9 +19,14 @@ const OSM_TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 export default function InicioScreen() {
   const { driverId, driver, isApproved, error, toggleAvailability } = useDriver();
-  const { location, permission, error: locationError } = useDriverLocation();
+  const isFocused = useIsFocused();
+  const isAvailable = !!driver?.isAvailable;
+  // Follow the position only while Available and while this screen is visible
+  const { location, permission, error: locationError } = useDriverLocation({
+    follow: isAvailable && isFocused,
+  });
   const mapRef = useRef(null);
-  const lastSavedAt = useRef(0);
+  const locationRef = useRef(null);
 
   // Move the camera to the driver when the position changes
   useEffect(() => {
@@ -29,14 +37,30 @@ export default function InicioScreen() {
     );
   }, [location]);
 
-  // Save the position only while Available (throttled)
+  // Keep the latest position in a ref so the interval below always sends the newest one
   useEffect(() => {
-    if (!location || !driver?.isAvailable) return;
-    const now = Date.now();
-    if (now - lastSavedAt.current < SAVE_EVERY_MS) return;
-    lastSavedAt.current = now;
-    updateDriverLocation(driverId, location).catch(() => {});
-  }, [location, driver?.isAvailable, driverId]);
+    locationRef.current = location;
+  }, [location]);
+
+  // Save the position every few seconds while Available and focused.
+  // Cleanup: the interval stops when No disponible, when leaving the screen or on unmount.
+  useEffect(() => {
+    if (!isAvailable || !isFocused || !driverId) return undefined;
+    const send = () => {
+      if (locationRef.current) updateDriverLocation(driverId, locationRef.current).catch(() => {});
+    };
+    send();
+    const interval = setInterval(send, SAVE_EVERY_MS);
+    return () => clearInterval(interval);
+  }, [isAvailable, isFocused, driverId]);
+
+  const handleCreateTestTrip = async () => {
+    try {
+      await createTestTrip(driverId);
+    } catch (e) {
+      // Only a testing helper: nothing else to do
+    }
+  };
 
   if (!driver) {
     return (
@@ -91,6 +115,12 @@ export default function InicioScreen() {
           </View>
         )}
 
+        {__DEV__ && isApproved && isAvailable ? (
+          <View style={styles.devBox}>
+            <Boton title="Simular solicitud (solo pruebas)" variant="outline" onPress={handleCreateTestTrip} />
+          </View>
+        ) : null}
+
         {permission === 'denied' ? (
           <Text style={styles.error}>Activa el permiso de ubicación en los ajustes del teléfono.</Text>
         ) : null}
@@ -128,5 +158,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1, paddingRight: spacing.md },
   cardTitle: { fontSize: fontSize.lg, fontWeight: '700', color: colors.text },
   cardText: { marginTop: spacing.xs, fontSize: fontSize.md, color: colors.textSoft },
+  devBox: { marginTop: spacing.md },
   error: { marginTop: spacing.md, color: colors.error, fontSize: fontSize.sm },
 });

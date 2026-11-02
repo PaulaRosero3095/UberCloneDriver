@@ -16,3 +16,10 @@ export function formatDate(date) {
 export function formatPercent(rate) {
   return `${Math.round(rate * 100)} %`;
 }
+
+// 19200 -> "$19.200" (Colombian pesos, whole numbers, no decimals)
+export function formatCOP(amount) {
+  const rounded = Math.round(Number(amount) || 0);
+  const sign = rounded < 0 ? '-' : '';
+  return `${sign}$${String(Math.abs(rounded)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+}

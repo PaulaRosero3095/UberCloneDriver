@@ -22,4 +22,3 @@ const styles = StyleSheet.create({
   title: { fontSize: fontSize.xl, fontWeight: '800', color: colors.text },
   subtitle: { marginTop: spacing.sm, fontSize: fontSize.md, color: colors.textSoft },
 });
-

@@ -54,3 +54,25 @@ Qué se usó / modificó / descartó: (completar)
 Archivos y commit: src/hooks/useDriverLocation.js, src/screens/InicioScreen.js, src/services/driverService.js, app.config.js — (hash del commit)
 Verificación: (completar: ubicación simulada en el emulador, marcador en el mapa, posición guardada en Firestore)
 Aprendizaje: (completar con tus palabras)
+Entrada #6
+Fecha: 2026-11-02
+Integrante: Paula Rosero
+Herramienta: Claude
+Objetivo: Solicitud entrante con temporizador de 15 s (hook useTripRequests), contexto del viaje activo, y ajustes del seguimiento de ubicación y de las preferencias
+Prompt: (pegar aquí el prompt tal como lo escribiste)
+Resumen de la respuesta: Servicio de viajes con transacciones, hook con suscripción en tiempo real y cuenta regresiva con limpieza, contexto que abre la pantalla de solicitud, pantalla con tarifa y ganancia estimadas, seguimiento que se detiene en "No disponible", preferencias en AsyncStorage.
+Qué se usó / modificó / descartó: (completar)
+Archivos y commit: src/hooks/useTripRequests.js, src/hooks/useDriverLocation.js, src/services/tripService.js, src/services/preferencesService.js, src/context/TripContext.js, src/screens/SolicitudScreen.js, src/screens/InicioScreen.js, src/config/trips.js — (hash del commit)
+Verificación: (completar: botón "Simular solicitud", temporizador, aceptar y rechazar, documento en la colección trips)
+Aprendizaje: (completar con tus palabras)
+### Entrada #7
+- Fecha: 2026-11-02
+- Integrante: Paula Rosero
+- Herramienta: Claude
+- Objetivo: Corregir la subida de fotos a Cloudinary (error "Unsupported FormDataPart implementation")
+- Prompt: (pega aquí lo que escribiste)
+- Resumen de la respuesta: El fetch global de este Expo no acepta el objeto de archivo de React Native dentro de FormData; se reemplazó por XMLHttpRequest.
+- Qué se usó / modificó / descartó: (completar)
+- Archivos y commit: src/services/imageService.js — (hash del commit)
+- Verificación: (completar)
+- Aprendizaje: (completar con tus palabras)

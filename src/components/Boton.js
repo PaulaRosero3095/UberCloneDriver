@@ -2,15 +2,24 @@ import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 import { colors, fontSize, radius, spacing } from '../theme';
 
-export default function Boton({ title, onPress, disabled = false, loading = false }) {
+export default function Boton({ title, onPress, disabled = false, loading = false, variant = 'solid' }) {
   const inactive = disabled || loading;
   return (
     <Pressable
       onPress={onPress}
       disabled={inactive}
-      style={({ pressed }) => [styles.button, inactive && styles.disabled, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.button,
+        variant === 'outline' && styles.outline,
+        inactive && styles.disabled,
+        pressed && styles.pressed,
+      ]}
     >
-      {loading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.text}>{title}</Text>}
+      {loading ? (
+        <ActivityIndicator color={variant === 'outline' ? colors.primary : '#FFFFFF'} />
+      ) : (
+        <Text style={[styles.text, variant === 'outline' && styles.outlineText]}>{title}</Text>
+      )}
     </Pressable>
   );
 }
@@ -23,7 +32,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  disabled: { backgroundColor: '#9CA3AF' },
+  outline: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.primary },
+  outlineText: { color: colors.primary },
+  disabled: { backgroundColor: '#9CA3AF', borderColor: '#9CA3AF' },
   pressed: { opacity: 0.85 },
   text: { color: '#FFFFFF', fontSize: fontSize.md, fontWeight: '700' },
 });

@@ -94,7 +94,13 @@ export function RegistroProvider({ children }) {
       setStatus('submitted');
       return true;
     } catch (error) {
-      setSubmitError('No pudimos enviar tu registro. Revisa tu conexión e inténtalo de nuevo.');
+      console.warn('registerDriver failed:', error);
+      const isCloudinary = String(error?.message || '').includes('Cloudinary');
+      setSubmitError(
+        isCloudinary
+          ? 'Falta configurar Cloudinary en el archivo .env. Revisa el nombre de la nube y el preset.'
+          : 'No pudimos enviar tu registro. Revisa tu conexión e inténtalo de nuevo.'
+      );
       setStatus('draft');
       return false;
     }

@@ -4,6 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { DriverProvider } from './src/context/DriverContext';
+import { TripProvider } from './src/context/TripContext';
+import { navigationRef } from './src/navigation/navigationRef';
 import { RegistroProvider } from './src/context/RegistroContext';
 import RootNavigator from './src/navigation/RootNavigator';
 
@@ -12,10 +14,12 @@ export default function App() {
     <SafeAreaProvider>
       <DriverProvider>
         <RegistroProvider>
-          <NavigationContainer>
-            <StatusBar style="dark" />
-            <RootNavigator />
-          </NavigationContainer>
+          <TripProvider>
+            <NavigationContainer ref={navigationRef}>
+              <StatusBar style="dark" />
+              <RootNavigator />
+            </NavigationContainer>
+          </TripProvider>
         </RegistroProvider>
       </DriverProvider>
     </SafeAreaProvider>

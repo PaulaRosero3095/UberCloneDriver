@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { setDriverAvailability, subscribeToDriver } from '../services/driverService';
+import { savePreference } from '../services/preferencesService';
 import { clearSession, loadDriverId, saveDriverId } from '../services/sessionService';
 
 const DriverContext = createContext(null);
@@ -56,7 +57,9 @@ export function DriverProvider({ children }) {
   const toggleAvailability = useCallback(async () => {
     if (!driverId || !isApproved) return; // pending drivers cannot go available
     try {
-      await setDriverAvailability(driverId, !driver.isAvailable);
+      const next = !driver.isAvailable;
+      await setDriverAvailability(driverId, next);
+      savePreference('lastAvailability', next); // preference kept in AsyncStorage
     } catch (e) {
       setError('No pudimos cambiar tu disponibilidad. Inténtalo de nuevo.');
     }
