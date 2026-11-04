@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Switch, Text, View } from 'react-native'
 import { useIsFocused } from '@react-navigation/native';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE, UrlTile } from 'react-native-maps';
 
+import { TILE_ATTRIBUTION, TILE_URL } from '../config/map';
 import { useDriver } from '../context/DriverContext';
 import useDriverLocation from '../hooks/useDriverLocation';
 import Boton from '../components/Boton';
@@ -13,9 +14,8 @@ import { colors, fontSize, radius, spacing } from '../theme';
 const FALLBACK_REGION = { latitude: 4.711, longitude: -74.0721, latitudeDelta: 0.05, longitudeDelta: 0.05 };
 const SAVE_EVERY_MS = 5000;
 
-// With a Google key the map uses Google Maps; without it, free OpenStreetMap tiles
+// With a Google key the map uses Google Maps; without it, free tiles (see src/config/map.js)
 const HAS_GOOGLE_KEY = !!process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
-const OSM_TILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 export default function InicioScreen() {
   const { driverId, driver, isApproved, error, toggleAvailability } = useDriver();
@@ -81,13 +81,13 @@ export default function InicioScreen() {
         mapType={HAS_GOOGLE_KEY ? 'standard' : 'none'}
         initialRegion={FALLBACK_REGION}
       >
-        {!HAS_GOOGLE_KEY && <UrlTile urlTemplate={OSM_TILES} maximumZ={19} tileSize={256} />}
+        {!HAS_GOOGLE_KEY && <UrlTile urlTemplate={TILE_URL} maximumZ={19} tileSize={256} zIndex={1} />}
         {location && (
           <Marker coordinate={location} title="Tú" pinColor={colors.accent} />
         )}
       </MapView>
 
-      {!HAS_GOOGLE_KEY && <Text style={styles.attribution}>© OpenStreetMap contributors</Text>}
+      {!HAS_GOOGLE_KEY && <Text style={styles.attribution}>{TILE_ATTRIBUTION}</Text>}
 
       <View style={styles.panel}>
         <Text style={styles.hello}>Hola, {driver.personal.fullName.split(' ')[0]}</Text>
