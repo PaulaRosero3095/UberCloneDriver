@@ -1,3 +1,9 @@
+// src/screens/InicioScreen.js
+// AI-assisted: see docs/AI_LOG.md #6
+// Home: map with the driver position + approval status / availability switch.
+// While Available AND on this screen, the position is followed and saved in Firestore every 5 s;
+// the tracking stops (useEffect cleanup) when the driver is No disponible or leaves the screen.
+
 import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, Switch, Text, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';

@@ -1,5 +1,5 @@
 // src/config/trips.js
-// AI-assisted: see docs/AI_LOG.md #6
+// AI-assisted: see docs/AI_LOG.md #8
 // Trip constants shared by the whole app.
 
 // Seconds the driver has to accept a request before it is rejected automatically
@@ -20,5 +20,20 @@ export const TRIP_STATUS = {
 export const PAYMENT_METHOD_LABELS = {
   mercadopago: 'Mercado Pago',
   stripe: 'Stripe',
+  cash: 'Efectivo',
+};
+
+// A trip in one of these statuses is the driver's "active trip" (completed = still to be paid)
+export const ACTIVE_STATUSES = [
+  TRIP_STATUS.accepted,
+  TRIP_STATUS.driverArriving,
+  TRIP_STATUS.inProgress,
+  TRIP_STATUS.completed,
+];
+
+export const PAYMENT_STATUS_LABELS = {
+  approved: 'Aprobado',
+  pending: 'Pendiente',
+  rejected: 'Rechazado',
   cash: 'Efectivo',
 };

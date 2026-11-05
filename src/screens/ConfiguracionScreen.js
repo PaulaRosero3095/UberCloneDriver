@@ -1,3 +1,7 @@
+// src/screens/ConfiguracionScreen.js
+// AI-assisted: see docs/AI_LOG.md #6
+// Settings: language preference (saved in AsyncStorage) and "Cerrar sesión".
+
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';

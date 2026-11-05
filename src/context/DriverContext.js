@@ -1,3 +1,9 @@
+// src/context/DriverContext.js
+// AI-assisted: see docs/AI_LOG.md #6
+// Session of the logged driver: restores the id from AsyncStorage and listens to the
+// Firestore document in real time (so the approval appears without reopening the app).
+// Concept: Context + useEffect with cleanup (unsubscribe) + useMemo + useCallback.
+
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { setDriverAvailability, subscribeToDriver } from '../services/driverService';

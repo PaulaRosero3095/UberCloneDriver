@@ -1,3 +1,8 @@
+// src/screens/SolicitudScreen.js
+// AI-assisted: see docs/AI_LOG.md #6
+// Incoming request: origin, destination, distance, duration, category, payment method,
+// estimated fare and estimated net earnings, with a 15 s timer.
+
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 

@@ -1,3 +1,8 @@
+// src/services/driverService.js
+// AI-assisted: see docs/AI_LOG.md #3
+// The ONLY place that talks to Firestore about drivers.
+// Bank or card numbers are never stored: the payment gateway handles them.
+
 import { addDoc, collection, doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 import { db } from '../config/firebase';

@@ -1,3 +1,7 @@
+// src/services/sessionService.js
+// AI-assisted: see docs/AI_LOG.md #4
+// AsyncStorage is used ONLY for the session (driver id). Trips and money live in Firestore.
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DRIVER_ID_KEY = 'session:driverId';

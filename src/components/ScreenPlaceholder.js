@@ -1,3 +1,7 @@
+// src/components/ScreenPlaceholder.js
+// AI-assisted: see docs/AI_LOG.md #2
+// Temporary empty screen. Each one is replaced by the real screen later.
+
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, fontSize, spacing } from '../theme';

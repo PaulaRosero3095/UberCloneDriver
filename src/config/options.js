@@ -1,3 +1,7 @@
+// src/config/options.js
+// AI-assisted: see docs/AI_LOG.md #3
+// Options for the dropdown lists of the registration form.
+
 export const GENDER_OPTIONS = [
   { value: 'female', label: 'Femenino' },
   { value: 'male', label: 'Masculino' },

@@ -1,3 +1,7 @@
+// src/components/CampoCheck.js
+// AI-assisted: see docs/AI_LOG.md #3
+// Checkbox with a text and the error message below.
+
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fontSize, radius, spacing } from '../theme';

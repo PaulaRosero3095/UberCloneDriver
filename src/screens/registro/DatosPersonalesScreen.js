@@ -1,3 +1,7 @@
+// src/screens/registro/DatosPersonalesScreen.js
+// AI-assisted: see docs/AI_LOG.md #3
+// Registration tab 1: personal data.
+
 import React, { useEffect } from 'react';
 
 import CampoTexto from '../../components/CampoTexto';

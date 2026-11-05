@@ -1,3 +1,8 @@
+// src/context/RegistroContext.js
+// AI-assisted: see docs/AI_LOG.md #3
+// Holds the registration form shared by the 3 tabs, its errors and the submit state.
+// Concept: Context + useMemo (derived errors) + useCallback (stable handlers).
+
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 import { useDriver } from './DriverContext';
@@ -94,13 +99,7 @@ export function RegistroProvider({ children }) {
       setStatus('submitted');
       return true;
     } catch (error) {
-      console.warn('registerDriver failed:', error);
-      const isCloudinary = String(error?.message || '').includes('Cloudinary');
-      setSubmitError(
-        isCloudinary
-          ? 'Falta configurar Cloudinary en el archivo .env. Revisa el nombre de la nube y el preset.'
-          : 'No pudimos enviar tu registro. Revisa tu conexión e inténtalo de nuevo.'
-      );
+      setSubmitError('No pudimos enviar tu registro. Revisa tu conexión e inténtalo de nuevo.');
       setStatus('draft');
       return false;
     }

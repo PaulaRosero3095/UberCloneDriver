@@ -1,3 +1,7 @@
+// src/components/FormScroll.js
+// AI-assisted: see docs/AI_LOG.md #3
+// Scrollable container for the forms. Taps keep working while the keyboard is open.
+
 import React from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import { colors, fontSize, spacing } from '../theme';

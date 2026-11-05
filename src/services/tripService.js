@@ -1,3 +1,7 @@
+// src/services/tripService.js
+// AI-assisted: see docs/AI_LOG.md #8
+// The ONLY place that talks to the "trips" collection. Screens and hooks never import Firestore.
+
 import {
   addDoc,
   collection,
@@ -11,7 +15,7 @@ import {
 
 import { db } from '../config/firebase';
 import { PRICING } from '../config/pricing';
-import { TRIP_STATUS } from '../config/trips';
+import { ACTIVE_STATUSES, TRIP_STATUS } from '../config/trips';
 
 const tripsRef = () => collection(db, 'trips');
 
@@ -81,4 +85,64 @@ export async function createTestTrip(driverId) {
     createdAt: serverTimestamp(),
   });
   return ref.id;
+}
+
+// Real-time listener of the driver's active trip (accepted ... completed, not paid yet).
+// Calls onData with the newest one, or null when there is none.
+export function subscribeToActiveTrip(driverId, onData, onError) {
+  const q = query(
+    tripsRef(),
+    where('driverId', '==', driverId),
+    where('status', 'in', ACTIVE_STATUSES)
+  );
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const trips = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      trips.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+      onData(trips[0] || null);
+    },
+    onError
+  );
+}
+
+// Changes the status of a trip ONLY if it is still in one of the expected statuses and belongs
+// to this driver. Returns false when the trip already changed (nothing is written).
+export function moveTrip(tripId, driverId, fromStatuses, toStatus, extraFields = {}) {
+  const ref = doc(db, 'trips', tripId);
+  return runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    const trip = snapshot.exists() ? snapshot.data() : null;
+    if (!trip || trip.driverId !== driverId || !fromStatuses.includes(trip.status)) return false;
+    transaction.update(ref, { status: toStatus, ...extraFields });
+    return true;
+  });
+}
+
+// Cash payment: the platform did not receive the money, so the commission is discounted
+// from the driver balance (it can become negative). Trip and balance change together.
+export function payTripInCash(tripId, driverId) {
+  const tripRef = doc(db, 'trips', tripId);
+  const driverRef = doc(db, 'drivers', driverId);
+  return runTransaction(db, async (transaction) => {
+    const tripSnapshot = await transaction.get(tripRef);
+    const driverSnapshot = await transaction.get(driverRef);
+    const trip = tripSnapshot.exists() ? tripSnapshot.data() : null;
+    if (
+      !trip ||
+      trip.driverId !== driverId ||
+      trip.status !== TRIP_STATUS.completed ||
+      trip.paymentMethod !== 'cash'
+    ) {
+      return false;
+    }
+    const balance = (driverSnapshot.exists() && driverSnapshot.data().balance) || 0;
+    transaction.update(tripRef, {
+      status: TRIP_STATUS.paid,
+      paymentStatus: 'cash',
+      paidAt: serverTimestamp(),
+    });
+    transaction.update(driverRef, { balance: balance - trip.commission });
+    return true;
+  });
 }

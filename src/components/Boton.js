@@ -1,3 +1,7 @@
+// src/components/Boton.js
+// AI-assisted: see docs/AI_LOG.md #3
+// Main button. Disabled look when `disabled`; shows a spinner when `loading`.
+
 import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 import { colors, fontSize, radius, spacing } from '../theme';

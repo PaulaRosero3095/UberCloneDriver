@@ -1,3 +1,7 @@
+// src/components/CampoTexto.js
+// AI-assisted: see docs/AI_LOG.md #3
+// Label + text input + error message right below the field.
+
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors, fontSize, radius, spacing } from '../theme';

@@ -1,3 +1,7 @@
+// src/components/CampoFecha.js
+// AI-assisted: see docs/AI_LOG.md #3
+// Date selector (opens the native date picker) with the error message below.
+
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';

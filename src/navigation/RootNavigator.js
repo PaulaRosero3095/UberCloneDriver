@@ -1,3 +1,8 @@
+// src/navigation/RootNavigator.js
+// AI-assisted: see docs/AI_LOG.md #4
+// STACK: registration -> main (drawer) -> trip flow screens.
+// The first screen depends on the saved session: with a session it opens Main directly.
+
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
