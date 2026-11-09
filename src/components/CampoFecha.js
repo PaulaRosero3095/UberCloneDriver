@@ -3,7 +3,7 @@
 // Date selector (opens the native date picker) with the error message below.
 
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { colors, fontSize, radius, spacing } from '../theme';
 import { formatDate } from '../utils/format';
@@ -19,38 +19,77 @@ export default function CampoFecha({
   maximumDate,
 }) {
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(value || initialDate || new Date());
 
-  // A date was chosen: close the picker and pass the date up
-  const handleValueChange = (event, selected) => {
-    setOpen(false);
-    if (selected) onChange(selected);
+  const openPicker = () => {
+    setDraft(value || initialDate || new Date());
+    setOpen(true);
   };
 
-  // The user cancelled: just close the picker
-  const handleDismiss = () => setOpen(false);
+  // Official API: onChange(event, selectedDate)
+  const handleChange = (event, selectedDate) => {
+    if (Platform.OS === 'android') {
+      // Android closes itself; we only need to clear `open`
+      setOpen(false);
+      if (event.type === 'set' && selectedDate) onChange(selectedDate);
+      return;
+    }
+
+    // iOS: keep the picker open and hold the draft until "Aceptar"
+    if (selectedDate) setDraft(selectedDate);
+  };
+
+  const confirmIOS = () => {
+    setOpen(false);
+    onChange(draft);
+  };
+
+  const cancelIOS = () => setOpen(false);
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <Pressable
-        onPress={() => setOpen(true)}
+        onPress={openPicker}
         style={[styles.field, !!error && styles.fieldError]}
       >
         <Text style={value ? styles.value : styles.placeholder}>
           {value ? formatDate(value) : placeholder}
         </Text>
       </Pressable>
-      {open && (
+
+      {open && Platform.OS === 'android' && (
         <DateTimePicker
-          value={value || initialDate || new Date()}
+          value={draft}
           mode="date"
           display="default"
-          onValueChange={handleValueChange}
-          onDismiss={handleDismiss}
+          onChange={handleChange}
           minimumDate={minimumDate}
           maximumDate={maximumDate}
         />
       )}
+
+      {open && Platform.OS === 'ios' && (
+        <View style={styles.iosBox}>
+          <DateTimePicker
+            value={draft}
+            mode="date"
+            display="spinner"
+            onChange={handleChange}
+            minimumDate={minimumDate}
+            maximumDate={maximumDate}
+          />
+          <View style={styles.iosButtons}>
+            <Pressable style={styles.iosButton} onPress={cancelIOS}>
+              <Text style={styles.iosButtonCancel}>Cancelar</Text>
+            </Pressable>
+            <Pressable style={styles.iosButton} onPress={confirmIOS}>
+              <Text style={styles.iosButtonConfirm}>Aceptar</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
       {!!error && <Text style={styles.error}>{error}</Text>}
     </View>
   );
@@ -71,4 +110,21 @@ const styles = StyleSheet.create({
   value: { fontSize: fontSize.md, color: colors.text },
   placeholder: { fontSize: fontSize.md, color: colors.textSoft },
   error: { marginTop: spacing.xs, fontSize: fontSize.sm, color: colors.error },
+  iosBox: {
+    marginTop: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+  },
+  iosButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.md,
+    paddingTop: spacing.sm,
+  },
+  iosButton: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
+  iosButtonCancel: { fontSize: fontSize.md, color: colors.textSoft, fontWeight: '600' },
+  iosButtonConfirm: { fontSize: fontSize.md, color: colors.primary, fontWeight: '700' },
 });

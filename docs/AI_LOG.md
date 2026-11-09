@@ -77,3 +77,27 @@
 - Archivos y commit: src/hooks/useTripRequests.js, src/hooks/useDriverLocation.js, src/services/tripService.js, src/services/preferencesService.js, src/context/TripContext.js, src/screens/SolicitudScreen.js, src/screens/InicioScreen.js, src/config/trips.js — (hash del commit)
 - Verificación: (completar: botón "Simular solicitud", temporizador, aceptar y rechazar, documento en la colección trips)
 - Aprendizaje: (completar con tus palabras)
+
+### Entrada #7
+- Fecha: 2026-11-08
+- Integrante: Miguel Montenegro
+- Herramienta: Claude
+- Objetivo: Configurar Babel para Reanimated 4 (plugin de worklets) y envolver la app en GestureHandlerRootView para que el Drawer funcione.
+- Prompt: Actúa como arquitecto de software senior y mentor en React Native/Expo. Estoy finalizando el proyecto UberClone Driver según el PDF adjunto. Necesito configurar Babel para que funcione Reanimated 4 con react-native-worklets y envolver la app en GestureHandlerRootView para que funcione el Drawer del menú principal. Mi babel.config.js actual solo tiene babel-preset-expo. Mi App.js está en la raíz y envuelve la app con SafeAreaProvider, DriverProvider, RegistroProvider, TripProvider y NavigationContainer. Entrégame los archivos completos con la ruta exacta, explícame por qué es necesario cada cambio, dame los comandos para limpiar la caché de Metro y dime cómo probar que el Drawer funciona sin errores
+- Resumen de la respuesta: Se añadió react-native-worklets/plugin como último plugin en babel.config.js. Se envolvió el árbol de providers y navegación de App.js con GestureHandlerRootView (importado desde react-native-gesture-handler).
+- Qué se usó / modificó / descartó: Se usó la configuración de Babel y el wrapper de GestureHandlerRootView. Se descartó copiar GestureHandlerRootView.tsx a la raíz del proyecto, porque es código interno del paquete, no un archivo del proyecto.
+- Archivos y commit: babel.config.js, App.js — (hash del commit)
+- Verificación: Rebuild de Android con npx expo run:android. La app arrancó sin el error de @react-native-community/geolocation. El Drawer abre con Inicio, Perfil, Historial, Ganancias y Configuración. La consola de Metro no muestra errores de Reanimated ni de GestureHandlerRootView.
+- Aprendizaje: Entendí que Reanimated 4 movió su plugin al paquete react-native-worklets y que, sin él, las animaciones y el Drawer fallan en runtime sin avisar durante el bundle. También aprendí que cualquier módulo nativo nuevo requiere rebuild del development build con expo run:android; recargar Metro no basta. En adelante, cada vez que agregue un paquete nativo, haré el rebuild antes de probar la funcionalidad.
+
+### Entrada #8
+- Fecha: 2026-11-08
+- Integrante: Miguel Montenegro
+- Herramienta: Claude
+- Objetivo: Corregir CampoFecha para que use la API oficial de @react-native-community/datetimepicker@9.1.0.
+- Prompt: Actúa como arquitecto de software senior y mentor en React Native/Expo. Mi componente CampoFecha.js usa las props onValueChange y onDismiss en @react-native-community/datetimepicker@9.1.0, pero las fechas no se guardan y el picker no se cierra. Corrige el componente según la API oficial del paquete, manteniendo la firma onChange(date) que usan los formularios DatosPersonalesScreen y DocumentosScreen para no tocarlos. Explícame qué cambia, por qué, y cómo probarlo en Android e iOS considerando que solo tengo entorno Android en Windows.
+- Resumen de la respuesta: Se reemplazaron onValueChange/onDismiss (props inexistentes) por onChange(event, selectedDate). En Android el picker cierra solo, así que basta con limpiar open dentro de onChange. En iOS el picker es inline, así que se agregaron botones Aceptar/Cancelar con un draft interno.
+Qué se usó / modificó / descartó: Se usó onChange, event.type === 'set' y Platform.OS. Se descartaron onValueChange y onDismiss.
+Archivos y commit: src/components/CampoFecha.js — (hash del commit)
+Verificación: En Android, elegir fecha de nacimiento, validación de mayoría de edad, y elegir los tres vencimientos en Documentos. El campo muestra la fecha elegida y los errores por campo aparecen correctamente. La consola no muestra warnings del DateTimePicker.
+Aprendizaje: Entendí que DateTimePicker@9 no usa onValueChange ni onDismiss: la API es onChange(event, date), y event.type dice si el usuario eligió (set) o canceló (dismissed). En Android el picker es modal y se cierra solo; en iOS es inline y necesita un draft con Aceptar/Cancelar para no confirmar en cada movimiento del spinner. Lo aplicaré a cualquier componente que envuelva APIs nativas con comportamiento distinto por plataforma

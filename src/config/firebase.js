@@ -16,4 +16,6 @@ const app = initializeApp(firebaseConfig);
 
 // Firestore instance. Only the files in src/services will import it.
 // Auto-detect long polling: avoids connection problems on React Native and emulators.
-export const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
