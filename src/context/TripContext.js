@@ -1,10 +1,7 @@
 // src/context/TripContext.js
 // AI-assisted: see docs/AI_LOG.md #8
-// Incoming request + ACTIVE TRIP, available to every screen (PDF: useContext for the active trip).
-// The screen shown depends on the trip status:
-//   request            -> Solicitud
-//   accepted / driver_arriving / in_progress -> ViajeEnCurso
-//   completed (not paid yet)                 -> Cobro
+// Incoming request + ACTIVE TRIP, available to every screen.
+// The screen shown depends on the trip status.
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -19,7 +16,6 @@ const TripContext = createContext(null);
 
 const screenFor = (status) => (status === TRIP_STATUS.completed ? 'Cobro' : 'ViajeEnCurso');
 
-// Replaces the whole stack so the driver cannot go "back" to a closed screen
 const goTo = (screen) => navigationRef.reset({ index: 1, routes: [{ name: 'Main' }, { name: screen }] });
 const goHome = () => navigationRef.reset({ index: 0, routes: [{ name: 'Main' }] });
 
@@ -28,7 +24,7 @@ export function TripProvider({ children }) {
   const [activeTrip, setActiveTrip] = useState(null);
   const [actionBusy, setActionBusy] = useState(false);
   const [actionError, setActionError] = useState('');
-  const arrivingSent = useRef(null); // trip id whose "driver_arriving" was already sent
+  const arrivingSent = useRef(null);
 
   // 1) Active trip listener (cleanup on logout / unmount)
   useEffect(() => {
@@ -56,7 +52,7 @@ export function TripProvider({ children }) {
     }
   }, [requestId, activeTrip]);
 
-  // 3) Show the screen that matches the active trip (also when the app is reopened mid-trip)
+  // 3) Show the screen that matches the active trip
   const activeId = activeTrip ? activeTrip.id : null;
   const activeStatus = activeTrip ? activeTrip.status : null;
   useEffect(() => {
@@ -64,7 +60,7 @@ export function TripProvider({ children }) {
     let tries = 0;
     const sync = () => {
       if (!navigationRef.isReady()) {
-        if (tries++ < 10) timer = setTimeout(sync, 500); // the navigator may not be ready yet
+        if (tries++ < 10) timer = setTimeout(sync, 500);
         return;
       }
       const current = navigationRef.getCurrentRoute()?.name;
@@ -72,14 +68,14 @@ export function TripProvider({ children }) {
         const target = screenFor(activeStatus);
         if (current !== target) goTo(target);
       } else if (current === 'ViajeEnCurso') {
-        goHome(); // the trip was cancelled
+        goHome();
       }
     };
     sync();
     return () => clearTimeout(timer);
   }, [activeId, activeStatus]);
 
-  // 4) accepted -> driver_arriving (the driver is heading to the pickup point)
+  // 4) accepted -> driver_arriving
   useEffect(() => {
     if (!activeTrip || activeTrip.status !== TRIP_STATUS.accepted) return;
     if (arrivingSent.current === activeTrip.id) return;
@@ -119,27 +115,28 @@ export function TripProvider({ children }) {
     [run, activeTrip, driverId]
   );
 
-  // Final fare with the SAME function used for the estimate; the commission rate of the trip is kept
+  // Final fare with the SAME function used for the estimate
   const finishTrip = useCallback(
-      
-    run(() => {
-      const result = calculateFare({
-        distanceKm: activeTrip.distanceKm,
-        durationMin: activeTrip.durationMin,
-        category: activeTrip.category,
-        tip: activeTrip.tip || 0,
-        commissionRate: activeTrip.commissionRate,
-      });
+    (polyline = []) => // <--- Restauramos la función flecha y el parámetro
+      run(() => {
+        const result = calculateFare({
+          distanceKm: activeTrip.distanceKm,
+          durationMin: activeTrip.durationMin,
+          category: activeTrip.category,
+          tip: activeTrip.tip || 0,
+          commissionRate: activeTrip.commissionRate,
+        });
         return moveTrip(activeTrip.id, driverId, [TRIP_STATUS.inProgress], TRIP_STATUS.completed, {
           fare: result.fare,
           commission: result.commission,
           driverEarnings: result.driverEarnings,
           completedAt: new Date(),
-          polyline, // <-- Guardar la ruta
+          polyline, // <--- Pasamos la polilínea aquí
         });
       }),
     [run, activeTrip, driverId]
   );
+
   const cancelActiveTrip = useCallback(
     () =>
       run(() =>
