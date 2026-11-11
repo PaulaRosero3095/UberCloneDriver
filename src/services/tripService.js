@@ -60,7 +60,7 @@ export function rejectTrip(tripId, driverId) {
 }
 
 // TESTING ONLY: there is no passenger app, so this creates a request like the passenger would.
-export async function createTestTrip(driverId) {
+export async function createTestTrip(driverId, paymentMethod = 'cash') {
   const ref = await addDoc(tripsRef(), {
     driverId,
     passengerId: 'test-passenger',
@@ -69,7 +69,7 @@ export async function createTestTrip(driverId) {
     distanceKm: 8.5,
     durationMin: 22,
     category: 'economy',
-    paymentMethod: 'cash',
+    paymentMethod,
     commissionRate: PRICING.commissionRate,
     tip: 0,
     status: TRIP_STATUS.requested,

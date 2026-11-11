@@ -2,7 +2,7 @@
 // AI-assisted: see docs/AI_LOG.md #8
 // Trip summary: final fare, commission, net earnings and payment status.
 // Cash: the driver marks the payment as received and the commission is discounted from the balance.
-// Mercado Pago / Stripe: enabled in the next step (needs the backend).
+// Mercado Pago: opens the checkout in a WebView; the backend verifies the payment.
 
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -22,11 +22,16 @@ function Row({ label, value, strong }) {
   );
 }
 
-export default function CobroScreen() {
+export default function CobroScreen({ navigation, route }) {
   const { activeTrip, actionBusy, actionError, collectCash } = useTrip();
   // Once the trip is paid it is no longer "active": keep the last data on screen
   const [trip, setTrip] = useState(null);
   const [paid, setPaid] = useState(false);
+
+  // Coming back from a successful Mercado Pago checkout
+  useEffect(() => {
+    if (route?.params?.paid) setPaid(true);
+  }, [route?.params?.paid]);
 
   useEffect(() => {
     if (activeTrip) setTrip(activeTrip);
@@ -44,7 +49,7 @@ export default function CobroScreen() {
 
   const isCash = trip.paymentMethod === 'cash';
   const isPaid = paid || trip.status === TRIP_STATUS.paid;
-  const paymentStatus = isCash && isPaid ? 'cash' : 'pending';
+  const paymentStatus = isPaid ? (isCash ? 'cash' : 'approved') : 'pending';
 
   const handleCollect = async () => {
     const done = await collectCash();
@@ -74,7 +79,9 @@ export default function CobroScreen() {
         </Text>
       ) : null}
       {!isCash && !isPaid ? (
-        <Text style={styles.note}>El pago con pasarela se habilita en el siguiente paso.</Text>
+        <Text style={styles.note}>
+          El pasajero paga con la pasarela. Al aprobarse, tu ganancia neta se suma a tu saldo.
+        </Text>
       ) : null}
       {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
 
@@ -84,7 +91,10 @@ export default function CobroScreen() {
         ) : isCash ? (
           <Boton title="Cobro recibido en efectivo" onPress={handleCollect} loading={actionBusy} />
         ) : (
-          <Boton title="Esperando pago con pasarela" onPress={() => {}} disabled />
+          <Boton
+            title="Pagar con Mercado Pago"
+            onPress={() => navigation.navigate('PagoMercadoPago', { tripId: trip.id })}
+          />
         )}
       </View>
     </ScrollView>

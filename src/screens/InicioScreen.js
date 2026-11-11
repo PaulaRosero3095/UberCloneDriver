@@ -60,9 +60,9 @@ export default function InicioScreen() {
     return () => clearInterval(interval);
   }, [isAvailable, isFocused, driverId]);
 
-  const handleCreateTestTrip = async () => {
+  const handleCreateTestTrip = async (paymentMethod = 'cash') => {
     try {
-      await createTestTrip(driverId);
+      await createTestTrip(driverId, paymentMethod);
     } catch (e) {
       // Only a testing helper: nothing else to do
     }
@@ -123,7 +123,9 @@ export default function InicioScreen() {
 
         {__DEV__ && isApproved && isAvailable ? (
           <View style={styles.devBox}>
-            <Boton title="Simular solicitud (solo pruebas)" variant="outline" onPress={handleCreateTestTrip} />
+            <Boton title="Simular solicitud en efectivo (pruebas)" variant="outline" onPress={() => handleCreateTestTrip('cash')} />
+            <View style={{ height: spacing.sm }} />
+            <Boton title="Simular solicitud Mercado Pago (pruebas)" variant="outline" onPress={() => handleCreateTestTrip('mercadopago')} />
           </View>
         ) : null}
 
