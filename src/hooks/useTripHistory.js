@@ -1,6 +1,5 @@
 // src/hooks/useTripHistory.js
-// AI-assisted: see docs/AI_LOG.md #11
-// Custom hook: fetches trip history with pagination and applies filters locally.
+// AI-assisted: see docs/AI_LOG.md #12
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getHistoricalTrips } from '../services/tripService';
@@ -29,9 +28,8 @@ export default function useTripHistory(driverId) {
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState('');
 
-  // Filters
-  const [dateFilter, setDateFilter] = useState('all'); // all, today, week, month
-  const [paymentFilter, setPaymentFilter] = useState('all'); // all, cash, mercadopago
+  const [dateFilter, setDateFilter] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
 
   const fetchTrips = useCallback(async (isRefresh = false) => {
     if (!driverId) return;
@@ -50,12 +48,11 @@ export default function useTripHistory(driverId) {
       } else {
         setTrips((prev) => [...prev, ...newTrips]);
       }
-      // Keep the previous cursor when a page comes back empty
-      if (newLastDoc) setLastDoc(newLastDoc);
+      setLastDoc(newLastDoc);
       setHasMore(newTrips.length === 20);
       setError('');
     } catch (e) {
-      console.warn('history failed:', e);
+      console.log("FIRESTORE HISTORY ERROR:", e); // <--- AÑADIDO PARA DIAGNOSTICAR
       setError('No pudimos cargar el historial.');
     } finally {
       setLoading(false);
@@ -64,7 +61,6 @@ export default function useTripHistory(driverId) {
     }
   }, [driverId, lastDoc]);
 
-  // Initial load
   useEffect(() => {
     fetchTrips(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,10 +68,9 @@ export default function useTripHistory(driverId) {
 
   const onRefresh = () => fetchTrips(true);
   const loadMore = () => {
-    if (!loading && !loadingMore && hasMore && !error) fetchTrips(false);
+    if (!loading && !loadingMore && hasMore) fetchTrips(false);
   };
 
-  // Apply filters locally (avoids complex Firestore indexes)
   const filteredTrips = useMemo(() => {
     const now = new Date();
     const todayStart = startOfDay(now);
@@ -83,16 +78,11 @@ export default function useTripHistory(driverId) {
     const monthStart = startOfMonth(now);
 
     return trips.filter((trip) => {
-      // 1. Date Filter
       const tripDate = toDate(trip.completedAt) || toDate(trip.createdAt);
       if (dateFilter === 'today' && (!tripDate || tripDate < todayStart)) return false;
       if (dateFilter === 'week' && (!tripDate || tripDate < weekStart)) return false;
       if (dateFilter === 'month' && (!tripDate || tripDate < monthStart)) return false;
-
-      // 2. Payment Filter
       if (paymentFilter !== 'all' && trip.paymentMethod !== paymentFilter) return false;
-
-      // 3. Only finished trips
       if (!['completed', 'paid', 'cancelled'].includes(trip.status)) return false;
 
       return true;

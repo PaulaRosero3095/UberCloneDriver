@@ -6,6 +6,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { TRIP_STATUS } from '../config/trips';
+import usePushNotifications from '../hooks/usePushNotifications';
 import useTripRequests from '../hooks/useTripRequests';
 import { navigationRef } from '../navigation/navigationRef';
 import { moveTrip, payTripInCash, subscribeToActiveTrip } from '../services/tripService';
@@ -25,6 +26,8 @@ export function TripProvider({ children }) {
   const [actionBusy, setActionBusy] = useState(false);
   const [actionError, setActionError] = useState('');
   const arrivingSent = useRef(null);
+
+  usePushNotifications(driverId); // FCM token + messages
 
   // 1) Active trip listener (cleanup on logout / unmount)
   useEffect(() => {

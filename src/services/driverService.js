@@ -107,3 +107,11 @@ export async function updateDriverProfile(driverId, values) {
     'vehicle.photoUrl': vehiclePhotoUrl,
   });
 }
+
+// FCM device token, so the backend can push "new trip request" to this driver
+export async function saveFcmToken(driverId, fcmToken) {
+  await updateDoc(doc(db, 'drivers', driverId), {
+    fcmToken,
+    fcmTokenUpdatedAt: serverTimestamp(),
+  });
+}
