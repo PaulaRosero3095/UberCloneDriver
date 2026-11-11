@@ -14,6 +14,7 @@ import DrawerNavigator from './DrawerNavigator';
 import SolicitudScreen from '../screens/SolicitudScreen';
 import ViajeEnCursoScreen from '../screens/ViajeEnCursoScreen';
 import CobroScreen from '../screens/CobroScreen';
+import DetalleViajeScreen from '../screens/DetalleViajeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +37,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Solicitud" component={SolicitudScreen} options={{ title: 'Solicitud entrante' }} />
       <Stack.Screen name="ViajeEnCurso" component={ViajeEnCursoScreen} options={{ title: 'Viaje en curso', headerBackVisible: false }} />
       <Stack.Screen name="Cobro" component={CobroScreen} options={{ title: 'Cobro y resumen', headerBackVisible: false }} />
+      <Stack.Screen name="DetalleViaje" component={DetalleViajeScreen} options={{ title: 'Detalle del viaje' }} />
     </Stack.Navigator>
   );
 }

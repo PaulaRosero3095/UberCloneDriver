@@ -2,16 +2,7 @@
 // AI-assisted: see docs/AI_LOG.md #8
 // The ONLY place that talks to the "trips" collection. Screens and hooks never import Firestore.
 
-import {
-  addDoc,
-  collection,
-  doc,
-  onSnapshot,
-  query,
-  runTransaction,
-  serverTimestamp,
-  where,
-} from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot, query, runTransaction, serverTimestamp, where, orderBy, limit, startAfter, getDocs } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
 import { PRICING } from '../config/pricing';
@@ -83,6 +74,13 @@ export async function createTestTrip(driverId) {
     tip: 0,
     status: TRIP_STATUS.requested,
     createdAt: serverTimestamp(),
+    // Fake polyline for testing the history detail
+    polyline: [
+      { latitude: 4.6486, longitude: -74.0628 },
+      { latitude: 4.6300, longitude: -74.0700 },
+      { latitude: 4.6097, longitude: -74.0820 }
+    ],
+    rating: 5,
   });
   return ref.id;
 }
@@ -145,4 +143,24 @@ export function payTripInCash(tripId, driverId) {
     transaction.update(driverRef, { balance: balance - trip.commission });
     return true;
   });
+}
+
+// Fetch historical trips with pagination (20 at a time)
+export async function getHistoricalTrips(driverId, lastVisibleDoc = null) {
+  let q = query(
+    tripsRef(),
+    where('driverId', '==', driverId),
+    orderBy('createdAt', 'desc'),
+    limit(20)
+  );
+
+  if (lastVisibleDoc) {
+    q = query(q, startAfter(lastVisibleDoc));
+  }
+
+  const snapshot = await getDocs(q);
+  const trips = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+
+  return { trips, lastDoc };
 }

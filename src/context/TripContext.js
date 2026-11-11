@@ -121,25 +121,25 @@ export function TripProvider({ children }) {
 
   // Final fare with the SAME function used for the estimate; the commission rate of the trip is kept
   const finishTrip = useCallback(
-    () =>
-      run(() => {
-        const result = calculateFare({
-          distanceKm: activeTrip.distanceKm,
-          durationMin: activeTrip.durationMin,
-          category: activeTrip.category,
-          tip: activeTrip.tip || 0,
-          commissionRate: activeTrip.commissionRate,
-        });
+      
+    run(() => {
+      const result = calculateFare({
+        distanceKm: activeTrip.distanceKm,
+        durationMin: activeTrip.durationMin,
+        category: activeTrip.category,
+        tip: activeTrip.tip || 0,
+        commissionRate: activeTrip.commissionRate,
+      });
         return moveTrip(activeTrip.id, driverId, [TRIP_STATUS.inProgress], TRIP_STATUS.completed, {
           fare: result.fare,
           commission: result.commission,
           driverEarnings: result.driverEarnings,
           completedAt: new Date(),
+          polyline, // <-- Guardar la ruta
         });
       }),
     [run, activeTrip, driverId]
   );
-
   const cancelActiveTrip = useCallback(
     () =>
       run(() =>

@@ -98,6 +98,30 @@
 - Prompt: Actúa como arquitecto de software senior y mentor en React Native/Expo. Mi componente CampoFecha.js usa las props onValueChange y onDismiss en @react-native-community/datetimepicker@9.1.0, pero las fechas no se guardan y el picker no se cierra. Corrige el componente según la API oficial del paquete, manteniendo la firma onChange(date) que usan los formularios DatosPersonalesScreen y DocumentosScreen para no tocarlos. Explícame qué cambia, por qué, y cómo probarlo en Android e iOS considerando que solo tengo entorno Android en Windows.
 - Resumen de la respuesta: Se reemplazaron onValueChange/onDismiss (props inexistentes) por onChange(event, selectedDate). En Android el picker cierra solo, así que basta con limpiar open dentro de onChange. En iOS el picker es inline, así que se agregaron botones Aceptar/Cancelar con un draft interno.
 Qué se usó / modificó / descartó: Se usó onChange, event.type === 'set' y Platform.OS. Se descartaron onValueChange y onDismiss.
-Archivos y commit: src/components/CampoFecha.js — (hash del commit)
-Verificación: En Android, elegir fecha de nacimiento, validación de mayoría de edad, y elegir los tres vencimientos en Documentos. El campo muestra la fecha elegida y los errores por campo aparecen correctamente. La consola no muestra warnings del DateTimePicker.
-Aprendizaje: Entendí que DateTimePicker@9 no usa onValueChange ni onDismiss: la API es onChange(event, date), y event.type dice si el usuario eligió (set) o canceló (dismissed). En Android el picker es modal y se cierra solo; en iOS es inline y necesita un draft con Aceptar/Cancelar para no confirmar en cada movimiento del spinner. Lo aplicaré a cualquier componente que envuelva APIs nativas con comportamiento distinto por plataforma
+- Archivos y commit: src/components/CampoFecha.js — (hash del commit)
+Verificación: En Android, elegir fecha de nacimiento, validación de mayoría de edad, y elegir los tres vencimientos en - Documentos. El campo muestra la fecha elegida y los errores por campo aparecen correctamente. La consola no muestra warnings del DateTimePicker.
+Aprendizaje: Entendí que DateTimePicker no usa onValueChange ni onDismiss: la API es onChange(event, date), y event.type dice si el usuario eligió (set) o canceló (dismissed). En Android el picker es modal y se cierra solo; en iOS es inline y necesita un draft con Aceptar/Cancelar para no confirmar en cada movimiento del spinner. Lo aplicaré a cualquier componente que envuelva APIs nativas con comportamiento distinto por plataforma
+
+### Entrada #9
+- Fecha: 2026-11-10
+- Integrante: Miguel Montenegro
+- Herramienta: Claude
+- Objetivo: Crear el hook useEarnings y la pantalla GananciasScreen para mostrar los ingresos del conductor (hoy, semana, mes) y su saldo.
+- Prompt: Actúa como arquitecto de software senior y mentor en React Native/Expo. Necesito crear la pantalla de Ganancias y el hook useEarnings según el PDF. Debe mostrar totales de hoy, semana y mes (viajes, facturado, comisiones, propinas, ganancia neta y promedio) usando useMemo. También debe mostrar el saldo del conductor con datos en tiempo real.
+- Resumen de la respuesta: Se creó el hook con una escucha en tiempo real a Firestore filtrando por viajes completados/pagados. Se implementó la pantalla con tarjetas por período (Hoy, Semana, Mes) y cálculo de promedios usando useMemo para no recalcular en cada render. Se añadió la tarjeta del saldo del conductor.
+- Qué se usó / modificó / descartó: Se usó onSnapshot, useMemo y formatCOP. Se descartó filtrar todas las fechas en el cliente, prefiriendo usar queries de Firestore para traer solo lo necesario.
+- Archivos y commit: src/hooks/useEarnings.js, src/screens/GananciasScreen.js — (hash del commit)
+- Verificación: Se probó con viajes de prueba en Firestore (hoy, hace 3 días, hace 15 días). Las sumas y promedios son correctos. Al cambiar el estado de un viaje a cancelado, los totales se actualizan en tiempo real sin recargar.
+- Aprendizaje: Aprendí a usar useMemo para hacer agregaciones de datos complejas sin afectar el rendimiento, y a estructurar consultas de Firestore para no traer datos innecesarios.
+
+### Entrada #10
+- Fecha: 2026-11-10
+- Integrante: Miguel Montenegro
+- Herramienta: Claude
+- Objetivo: Mejorar el menú lateral (Drawer) con un header personalizado (foto, nombre, estado) e iconos en las opciones.
+- Prompt: Actúa como arquitecto de software senior. El menú lateral de mi app se ve muy básico y tiene un ícono de engranaje feo en el header. Ayúdame a crear un CustomDrawerContent que muestre la foto y el nombre del conductor arriba, y que las opciones tengan iconos coherentes.
+- Resumen de la respuesta: Se creó un componente CustomDrawerContent usando DrawerContentScrollView y DrawerItemList. Se actualizó DrawerNavigator para usar este componente, limpiar el header por defecto y añadir iconos de Ionicons a cada opción.
+- Qué se usó / modificó / descartó: Se usaron componentes de @react-navigation/drawer e Ionicons. Se descartó el header por defecto para tener un diseño más limpio y profesional.
+- Archivos y commit: src/navigation/CustomDrawerContent.js, src/navigation/DrawerNavigator.js — (hash del commit)
+- Verificación: Se abrió el menú y se verificó que muestra la foto, nombre y estado del conductor. Se navegó por todas las pantallas y los iconos y el header centrado se ven correctamente.
+- Aprendizaje: Entendí cómo personalizar el contenido del Drawer usando DrawerContentScrollView y DrawerItemList, y cómo inyectar iconos de forma consistente en React Navigation.

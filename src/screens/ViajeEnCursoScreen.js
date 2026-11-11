@@ -118,7 +118,7 @@ export default function ViajeEnCursoScreen() {
 
         <View style={styles.actions}>
           {onBoard ? (
-            <Boton title="Finalizar viaje" onPress={finishTrip} loading={actionBusy} />
+            <Boton title="Finalizar viaje" onPress={() => finishTrip(currentRoute?.coordinates || [])} loading={actionBusy} />
           ) : (
             <>
               <Boton title="Pasajero a bordo" onPress={markPassengerOnBoard} loading={actionBusy} />
