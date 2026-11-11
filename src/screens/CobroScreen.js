@@ -96,6 +96,13 @@ export default function CobroScreen({ navigation, route }) {
             onPress={() => navigation.navigate('PagoMercadoPago', { tripId: trip.id })}
           />
         )}
+        {!isPaid ? (
+          <>
+            <View style={styles.spacer} />
+            <Boton title="Volver al inicio" variant="outline" onPress={goHome} />
+            <Text style={styles.note}>El cobro queda pendiente; la app volverá a mostrarlo al abrirla.</Text>
+          </>
+        ) : null}
       </View>
     </ScrollView>
   );
