@@ -97,9 +97,13 @@ export default function HistorialScreen({ navigation }) {
         </View>
       </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Pressable onPress={onRefresh}>
+          <Text style={styles.error}>{error} Toca para reintentar.</Text>
+        </Pressable>
+      ) : null}
 
-      {loading ? (
+      {loading && !error ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>

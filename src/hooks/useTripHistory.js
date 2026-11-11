@@ -50,10 +50,12 @@ export default function useTripHistory(driverId) {
       } else {
         setTrips((prev) => [...prev, ...newTrips]);
       }
-      setLastDoc(newLastDoc);
+      // Keep the previous cursor when a page comes back empty
+      if (newLastDoc) setLastDoc(newLastDoc);
       setHasMore(newTrips.length === 20);
       setError('');
     } catch (e) {
+      console.warn('history failed:', e);
       setError('No pudimos cargar el historial.');
     } finally {
       setLoading(false);
@@ -70,7 +72,7 @@ export default function useTripHistory(driverId) {
 
   const onRefresh = () => fetchTrips(true);
   const loadMore = () => {
-    if (!loading && !loadingMore && hasMore) fetchTrips(false);
+    if (!loading && !loadingMore && hasMore && !error) fetchTrips(false);
   };
 
   // Apply filters locally (avoids complex Firestore indexes)

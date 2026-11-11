@@ -84,3 +84,26 @@ export async function updateDriverLocation(driverId, { latitude, longitude }) {
     locationUpdatedAt: serverTimestamp(),
   });
 }
+
+// Profile edit: only the fields a driver may change. New photos (local URIs) are
+// uploaded to Cloudinary; http URLs pass through untouched. Dotted paths keep the
+// rest of the nested maps intact.
+export async function updateDriverProfile(driverId, values) {
+  const [photoUrl, vehiclePhotoUrl] = await Promise.all([
+    uploadImage(values.photo),
+    uploadImage(values.vehiclePhoto),
+  ]);
+
+  await updateDoc(doc(db, 'drivers', driverId), {
+    'personal.fullName': values.fullName.trim(),
+    'personal.phone': values.phone.trim(),
+    'personal.email': values.email.trim().toLowerCase(),
+    'personal.gender': values.gender,
+    'personal.photoUrl': photoUrl,
+    'vehicle.brand': values.brand.trim(),
+    'vehicle.model': values.model.trim(),
+    'vehicle.color': values.color,
+    'vehicle.capacity': Number(values.capacity),
+    'vehicle.photoUrl': vehiclePhotoUrl,
+  });
+}
