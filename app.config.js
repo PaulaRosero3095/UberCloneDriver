@@ -1,3 +1,4 @@
+// AI-assisted: see docs/AI_LOG.md #5
 const mapsKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || 'NO_KEY_USING_OPENSTREETMAP';
 
 module.exports = ({ config }) => ({

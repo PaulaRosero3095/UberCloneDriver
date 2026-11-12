@@ -1,3 +1,4 @@
+// AI-assisted: see docs/AI_LOG.md #13
 import 'react-native-gesture-handler';
 import { registerRootComponent } from 'expo';
 

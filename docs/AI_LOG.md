@@ -125,3 +125,55 @@ Aprendizaje: Entendí que DateTimePicker no usa onValueChange ni onDismiss: la A
 - Archivos y commit: src/navigation/CustomDrawerContent.js, src/navigation/DrawerNavigator.js — (hash del commit)
 - Verificación: Se abrió el menú y se verificó que muestra la foto, nombre y estado del conductor. Se navegó por todas las pantallas y los iconos y el header centrado se ven correctamente.
 - Aprendizaje: Entendí cómo personalizar el contenido del Drawer usando DrawerContentScrollView y DrawerItemList, y cómo inyectar iconos de forma consistente en React Navigation.
+
+### Entrada #11
+
+- Fecha: 2026-11-11
+- Integrante: Paula Rosero
+- Herramienta: Claude
+- Objetivo: Corregir el Historial de carreras, que mostraba "No pudimos cargar el historial" con el indicador de carga girando sin parar.
+- Prompt: "¿Es normal que el historial se recargue constantemente?" (con captura de la pantalla) y luego "Sí, ayúdame a corregirlo".
+- Resumen de la respuesta: Se identificó que la consulta de Firestore combina `where('driverId')` con `orderBy('createdAt')`, lo que exige un índice compuesto. Se corrigió el hook para registrar el error real (`console.warn`), conservar el cursor de paginación si llega una página vacía y no reintentar `loadMore` con error; la pantalla ya no muestra el spinner si hay error y permite tocar el mensaje para reintentar.
+- Qué se usó / modificó / descartó: Se usaron los cambios en el hook y en la pantalla. El índice compuesto se crea desde el enlace que Firestore muestra en el error (no es código).
+- Archivos y commit: src/hooks/useTripHistory.js, src/screens/HistorialScreen.js — (hash del commit)
+- Verificación: (completar: se creó el índice y el historial carga los viajes)
+- Aprendizaje: (completar con tus palabras)
+
+### Entrada #12
+
+- Fecha: 2026-11-11
+- Integrante: Paula Rosero
+- Herramienta: Claude
+- Objetivo: Construir la pantalla de Perfil, que solo mostraba un texto provisional.
+- Prompt: "El perfil del usuario no muestra nada" y luego "Continuemos con los pasos y lo que nos falta".
+- Resumen de la respuesta: Se creó PerfilScreen con datos personales y del vehículo editables (reutilizando los validadores del registro), foto de perfil y del vehículo, y datos de solo lectura (documento, placa, categoría, año, estado, saldo y vigencia de licencia, SOAT y revisión). Se añadió `updateDriverProfile` al servicio, que sube las fotos nuevas a Cloudinary y actualiza solo los campos permitidos con rutas con punto.
+- Qué se usó / modificó / descartó: Se usaron los componentes Campo* y validators.js. Se descartó permitir editar los documentos desde la app.
+- Archivos y commit: src/screens/PerfilScreen.js, src/services/driverService.js — (hash del commit)
+- Verificación: (completar: se editó un dato y se vio el cambio en Firestore)
+- Aprendizaje: (completar con tus palabras)
+
+### Entrada #13
+
+- Fecha: 2026-11-11
+- Integrante: Paula Rosero
+- Herramienta: Claude
+- Objetivo: Implementar las notificaciones push con Firebase Cloud Messaging (FCM), obligatorias según el PDF.
+- Prompt: "Continuemos" (siguiente paso pendiente: notificaciones FCM).
+- Resumen de la respuesta: Se creó un servicio que pide el permiso de notificaciones (Android 13+), obtiene el token del dispositivo y registra los listeners; un hook `usePushNotifications` con limpieza de listeners que guarda el token en el documento del conductor (`fcmToken`); y el manejador de mensajes en segundo plano en `index.js`. Se agregó el permiso `POST_NOTIFICATIONS` en app.json.
+- Qué se usó / modificó / descartó: Se usó la API modular de @react-native-firebase/messaging. El envío automático se dejó al backend (entrada #14).
+- Archivos y commit: src/services/notificationService.js, src/hooks/usePushNotifications.js, src/services/driverService.js, src/context/TripContext.js, index.js, app.json — (hash del commit)
+- Verificación: Se reconstruyó la app, el campo `fcmToken` apareció en Firestore y un mensaje de prueba enviado desde Firebase Console llegó al emulador como notificación del sistema.
+- Aprendizaje: (completar con tus palabras)
+
+### Entrada #14
+
+- Fecha: 2026-11-11
+- Integrante: Paula Rosero
+- Herramienta: Claude
+- Objetivo: Crear el backend con Node/Express (envío de push y pagos con Mercado Pago, modo de prueba) y conectar el cobro de la app.
+- Prompt: "Continuemos" (siguiente paso pendiente: backend y Mercado Pago), más las consultas de configuración posteriores (llave de servicio, token de prueba, botón para volver desde Cobro).
+- Resumen de la respuesta: Se creó la carpeta backend con Express y firebase-admin: un observador de la colección `trips` que envía una notificación push al llegar una solicitud, y endpoints para crear la preferencia de Checkout Pro, verificar el pago directamente con la API de Mercado Pago y, solo entonces, marcar el viaje como pagado y acreditar la ganancia neta al saldo del conductor; también un webhook opcional. En la app se añadieron `paymentService`, la pantalla `PagoMercadoPagoScreen` (WebView) y el botón de pago en Cobro, además de un botón para volver al inicio mientras el pago está pendiente.
+- Qué se usó / modificó / descartó: Los secretos (.env y la llave de servicio) quedan fuera de Git y se incluye .env.example. Se usó la API de Preferences. Se descartó confiar en que la app informe el pago: el estado siempre lo confirma el backend. La llave de servicio se leyó mal por variable de entorno, por lo que se cambió a una carga explícita del archivo.
+- Archivos y commit: backend/src/*, src/config/backend.js, src/services/paymentService.js, src/screens/PagoMercadoPagoScreen.js, src/screens/CobroScreen.js, src/screens/InicioScreen.js, src/navigation/RootNavigator.js, src/services/tripService.js — (hash del commit)
+- Verificación: La app llegó a la pantalla de Cobro con el botón de Mercado Pago. (completar: pago de prueba aprobado, estado pagado y saldo actualizado)
+- Aprendizaje: (completar con tus palabras)

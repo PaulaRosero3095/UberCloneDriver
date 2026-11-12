@@ -46,3 +46,7 @@ yarn-error.*
 google-services.json
 android/
 ios/
+
+autolink.json
+AGENTS.md
+.claude/

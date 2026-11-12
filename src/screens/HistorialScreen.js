@@ -7,6 +7,7 @@ import React from 'react';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import CampoFecha from '../components/CampoFecha';
 import { useDriver } from '../context/DriverContext';
 import useTripHistory from '../hooks/useTripHistory';
 import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from '../config/trips';
@@ -18,6 +19,7 @@ const DATE_FILTERS = [
   { id: 'today', label: 'Hoy' },
   { id: 'week', label: 'Semana' },
   { id: 'month', label: 'Mes' },
+  { id: 'range', label: 'Rango' },
 ];
 
 export default function HistorialScreen({ navigation }) {
@@ -25,6 +27,7 @@ export default function HistorialScreen({ navigation }) {
   const {
     trips, loading, refreshing, loadingMore, error,
     dateFilter, setDateFilter, paymentFilter, setPaymentFilter,
+    rangeFrom, setRangeFrom, rangeTo, setRangeTo,
     onRefresh, loadMore,
   } = useTripHistory(driverId);
 
@@ -87,6 +90,17 @@ export default function HistorialScreen({ navigation }) {
           ))}
         </View>
         
+        {dateFilter === 'range' ? (
+          <View style={styles.rangeRow}>
+            <View style={styles.rangeField}>
+              <CampoFecha label="Desde" value={rangeFrom} onChange={setRangeFrom} maximumDate={rangeTo || new Date()} placeholder="Inicio" />
+            </View>
+            <View style={styles.rangeField}>
+              <CampoFecha label="Hasta" value={rangeTo} onChange={setRangeTo} minimumDate={rangeFrom || undefined} maximumDate={new Date()} placeholder="Fin" />
+            </View>
+          </View>
+        ) : null}
+
         <View style={styles.paymentFilters}>
           <Pressable onPress={() => setPaymentFilter(paymentFilter === 'cash' ? 'all' : 'cash')}>
             <Text style={[styles.paymentFilterText, paymentFilter === 'cash' && styles.paymentFilterActive]}>Efectivo</Text>
@@ -152,6 +166,8 @@ const styles = StyleSheet.create({
   filterBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   filterText: { fontSize: fontSize.sm, color: colors.textSoft, fontWeight: '600' },
   filterTextActive: { color: '#FFF' },
+  rangeRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+  rangeField: { flex: 1 },
   paymentFilters: { flexDirection: 'row', gap: spacing.md },
   paymentFilterText: { fontSize: fontSize.sm, color: colors.textSoft, fontWeight: '600' },
   paymentFilterActive: { color: colors.primary, textDecorationLine: 'underline' },
