@@ -30,6 +30,8 @@ export default function useTripHistory(driverId) {
 
   const [dateFilter, setDateFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+  const [rangeFrom, setRangeFrom] = useState(null); // used when dateFilter === 'range'
+  const [rangeTo, setRangeTo] = useState(null);
 
   const fetchTrips = useCallback(async (isRefresh = false) => {
     if (!driverId) return;
@@ -48,11 +50,12 @@ export default function useTripHistory(driverId) {
       } else {
         setTrips((prev) => [...prev, ...newTrips]);
       }
-      setLastDoc(newLastDoc);
+      // Keep the previous cursor when a page comes back empty
+      if (newLastDoc) setLastDoc(newLastDoc);
       setHasMore(newTrips.length === 20);
       setError('');
     } catch (e) {
-      console.log("FIRESTORE HISTORY ERROR:", e); // <--- AÑADIDO PARA DIAGNOSTICAR
+      console.warn('history failed:', e);
       setError('No pudimos cargar el historial.');
     } finally {
       setLoading(false);
@@ -68,7 +71,7 @@ export default function useTripHistory(driverId) {
 
   const onRefresh = () => fetchTrips(true);
   const loadMore = () => {
-    if (!loading && !loadingMore && hasMore) fetchTrips(false);
+    if (!loading && !loadingMore && hasMore && !error) fetchTrips(false);
   };
 
   const filteredTrips = useMemo(() => {
@@ -82,12 +85,17 @@ export default function useTripHistory(driverId) {
       if (dateFilter === 'today' && (!tripDate || tripDate < todayStart)) return false;
       if (dateFilter === 'week' && (!tripDate || tripDate < weekStart)) return false;
       if (dateFilter === 'month' && (!tripDate || tripDate < monthStart)) return false;
+      if (dateFilter === 'range') {
+        if (!tripDate) return false;
+        if (rangeFrom && tripDate < startOfDay(rangeFrom)) return false;
+        if (rangeTo && tripDate >= new Date(startOfDay(rangeTo).getTime() + 24 * 60 * 60 * 1000)) return false;
+      }
       if (paymentFilter !== 'all' && trip.paymentMethod !== paymentFilter) return false;
       if (!['completed', 'paid', 'cancelled'].includes(trip.status)) return false;
 
       return true;
     });
-  }, [trips, dateFilter, paymentFilter]);
+  }, [trips, dateFilter, paymentFilter, rangeFrom, rangeTo]);
 
   return {
     trips: filteredTrips,
@@ -100,6 +108,10 @@ export default function useTripHistory(driverId) {
     setDateFilter,
     paymentFilter,
     setPaymentFilter,
+    rangeFrom,
+    setRangeFrom,
+    rangeTo,
+    setRangeTo,
     onRefresh,
     loadMore,
   };

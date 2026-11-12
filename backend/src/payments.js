@@ -47,8 +47,8 @@ async function createPreference(tripId, driverId) {
     }),
   });
   await snap.ref.update({ preferenceId: preference.id });
-  // Test credentials return sandbox_init_point as well; init_point works with test users
-  return { preferenceId: preference.id, initPoint: preference.sandbox_init_point || preference.init_point };
+  // With test credentials, init_point is the checkout to use (sandbox_init_point is the legacy one)
+  return { preferenceId: preference.id, initPoint: preference.init_point || preference.sandbox_init_point };
 }
 
 // Marks the trip as paid (idempotent) and credits the driver balance with the net earnings:
