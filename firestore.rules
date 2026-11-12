@@ -1,0 +1,44 @@
+rules_version = '2';
+
+// UberClone Conductor - Firestore rules
+// The app has no Firebase Authentication (the driver session is a saved document id), so rules
+// cannot identify WHO is calling. They limit WHAT can be done:
+//  - only the `drivers` and `trips` collections exist; everything else is denied
+//  - nothing can be deleted from the app
+//  - a driver is always created as pending, not available and with balance 0
+//  - the app can never change a driver's status, commission, documents or creation date
+// The backend uses the Admin SDK, which bypasses these rules.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /drivers/{driverId} {
+      allow read: if true;
+
+      allow create: if request.resource.data.status == 'pending'
+                    && request.resource.data.isAvailable == false
+                    && request.resource.data.balance == 0;
+
+      allow update: if !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['status', 'acceptedCommissionRate', 'createdAt', 'documents']);
+
+      allow delete: if false;
+    }
+
+    match /trips/{tripId} {
+      allow read: if true;
+
+      // Test requests created from the app (there is no passenger app)
+      allow create: if request.resource.data.status == 'requested';
+
+      // A paid trip is closed: it can no longer be changed
+      allow update: if resource.data.status != 'paid'
+                    && request.resource.data.driverId == resource.data.driverId;
+
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
