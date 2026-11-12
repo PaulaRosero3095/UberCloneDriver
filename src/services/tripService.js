@@ -6,6 +6,7 @@ import { addDoc, collection, doc, onSnapshot, query, runTransaction, serverTimes
 
 import { db } from '../config/firebase';
 import { PRICING } from '../config/pricing';
+import { getRoute } from './routeService';
 import { ACTIVE_STATUSES, TRIP_STATUS } from '../config/trips';
 
 const tripsRef = () => collection(db, 'trips');
@@ -60,26 +61,46 @@ export function rejectTrip(tripId, driverId) {
 }
 
 // TESTING ONLY: there is no passenger app, so this creates a request like the passenger would.
+// Test route: Cra 52 # 91-15 -> Tecnologico de Antioquia (Medellin).
+// NOTE: coordinates are approximate; adjust them with Google Maps (right click > copy coordinates).
+const TEST_ORIGIN = { lat: 6.2899, lng: -75.5617, address: 'Cra 52 # 91-15, Medellín' };
+const TEST_DESTINATION = { lat: 6.2768, lng: -75.5898, address: 'Tecnológico de Antioquia, Medellín' };
+
 export async function createTestTrip(driverId, paymentMethod = 'cash') {
+  // Default: straight line + rough numbers, in case the route service is unreachable
+  let polyline = [
+    { latitude: TEST_ORIGIN.lat, longitude: TEST_ORIGIN.lng },
+    { latitude: TEST_DESTINATION.lat, longitude: TEST_DESTINATION.lng },
+  ];
+  let distanceKm = 4.5;
+  let durationMin = 15;
+  try {
+    // Real street route (OSRM) so map, distance, time and fare are consistent
+    const route = await getRoute(
+      { latitude: TEST_ORIGIN.lat, longitude: TEST_ORIGIN.lng },
+      { latitude: TEST_DESTINATION.lat, longitude: TEST_DESTINATION.lng }
+    );
+    polyline = route.coordinates;
+    distanceKm = Math.round(route.distanceKm * 10) / 10;
+    durationMin = Math.max(1, Math.round(route.durationMin));
+  } catch (e) {
+    console.warn('test route failed, using straight line:', e);
+  }
+
   const ref = await addDoc(tripsRef(), {
     driverId,
     passengerId: 'test-passenger',
-    origin: { lat: 4.6486, lng: -74.0628, address: 'Parque de la 93, Bogotá' },
-    destination: { lat: 4.6097, lng: -74.082, address: 'Plaza de Bolívar, Bogotá' },
-    distanceKm: 8.5,
-    durationMin: 22,
+    origin: TEST_ORIGIN,
+    destination: TEST_DESTINATION,
+    distanceKm,
+    durationMin,
     category: 'economy',
     paymentMethod,
     commissionRate: PRICING.commissionRate,
     tip: 0,
     status: TRIP_STATUS.requested,
     createdAt: serverTimestamp(),
-    // Fake polyline for testing the history detail
-    polyline: [
-      { latitude: 4.6486, longitude: -74.0628 },
-      { latitude: 4.6300, longitude: -74.0700 },
-      { latitude: 4.6097, longitude: -74.0820 }
-    ],
+    polyline,
     rating: 5,
   });
   return ref.id;

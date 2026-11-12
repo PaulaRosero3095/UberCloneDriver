@@ -17,7 +17,7 @@ import { updateDriverLocation } from '../services/driverService';
 import { createTestTrip } from '../services/tripService';
 import { colors, fontSize, radius, spacing } from '../theme';
 
-const FALLBACK_REGION = { latitude: 4.711, longitude: -74.0721, latitudeDelta: 0.05, longitudeDelta: 0.05 };
+const FALLBACK_REGION = { latitude: 6.2842, longitude: -75.5757, latitudeDelta: 0.05, longitudeDelta: 0.05 };
 const SAVE_EVERY_MS = 5000;
 
 // With a Google key the map uses Google Maps; without it, free tiles (see src/config/map.js)

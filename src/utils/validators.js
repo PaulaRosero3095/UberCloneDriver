@@ -128,7 +128,7 @@ export function validateShortText(value, emptyMessage, max = 30) {
   return '';
 }
 
-export function validateYear(value, currentYear = new Date().getFullYear()) {
+export function validateYear(value, currentYear = new Date().getFullYear() + 1) {
   const v = String(value || '').trim();
   if (!v) return 'Ingresa el año del vehículo.';
   if (!/^\d{4}$/.test(v)) return 'Debe tener 4 dígitos.';

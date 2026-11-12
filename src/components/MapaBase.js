@@ -9,7 +9,7 @@ import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE, UrlTile } from 'react-nativ
 import { HAS_GOOGLE_KEY, TILE_ATTRIBUTION, TILE_URL } from '../config/map';
 import { colors, spacing } from '../theme';
 
-const FALLBACK_REGION = { latitude: 4.711, longitude: -74.0721, latitudeDelta: 0.05, longitudeDelta: 0.05 };
+const FALLBACK_REGION = { latitude: 6.2842, longitude: -75.5757, latitudeDelta: 0.05, longitudeDelta: 0.05 };
 
 const MapaBase = forwardRef(function MapaBase({ children, initialRegion = FALLBACK_REGION }, ref) {
   return (
